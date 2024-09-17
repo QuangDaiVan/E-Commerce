@@ -7,9 +7,9 @@ const cookieParser = require('cookie-parser')
 const app = express()
 const port = process.env.PORT || 8888
 
-app.use(cookieParser())
-app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser())
 
 dbConnect()
 
