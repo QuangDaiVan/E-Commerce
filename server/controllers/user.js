@@ -20,6 +20,7 @@ const register = asyncHandler(async (req, res) => {
         })
     }
 })
+
 const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body
     if (!email || !password) {
@@ -54,4 +55,14 @@ const login = asyncHandler(async (req, res) => {
     }
 })
 
-module.exports = { register, login }
+const getCurrent = asyncHandler(async (req, res) => {
+    const { _id } = req.user
+    const user = await User.findById(_id).select('-refreshToken -password -role')
+    return res.status(200).json({
+        success: false,
+        result: user ? user : 'User not found!'
+    })
+})
+
+
+module.exports = { register, login, getCurrent }
