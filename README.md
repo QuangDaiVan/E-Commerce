@@ -6,3 +6,5 @@
  + ExpressJS
  + ReactJS
  + NodeJS
+
+NOTE: kiên trì
