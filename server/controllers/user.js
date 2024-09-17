@@ -55,6 +55,21 @@ const login = asyncHandler(async (req, res) => {
         throw new Error('Invalid credentials!')
     }
 })
+const logout = asyncHandler(async (req, res) => {
+    // check xem trong cookie có refresh token hay không
+    const cookie = req.cookies
+    if (!cookie && !cookie.refreshToken) {
+        throw new Error('No refresh token in cookies')
+    }
+    // xóa refresh token ở db bằng hàm cập nhập nó thành 1 chuỗi rỗng
+    await User.findOneAndUpdate({ refreshToken: cookie.refreshToken }, { refreshToken: '' }, { new: true })
+    // xóa refresh token ở cookies trên trình duyệt
+    res.clearCookie('refreshToken', { httpOnly: true, secure: true })
+    return res.status(200).json({
+        success: true,
+        message: 'Logout is done'
+    })
+})
 
 const getCurrent = asyncHandler(async (req, res) => {
     const { _id } = req.user
@@ -73,15 +88,20 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         throw new Error('No refresh token in cookies')
     }
     // check xem token có hợp lệ hay không
-    jwt.verify(cookie.refreshToken, process.env.JWT_SECRET, async (err, decode) => {
-        if (err) { throw new Error('Invalid refresh token') }
-        // check xem token có khớp với token đã lưu trong db hay không
-        const response = await User.findById({ _id: decode._id, refreshToken: cookie.refreshToken })
-        return res.status(200).json({
-            success: response ? true : false,
-            newAccessToken: response ? generateAccsessToken(response._id, response.role) : 'Refresh token not matched'
-        })
+    const result = await jwt.verify(cookie.refreshToken, process.env.JWT_SECRET)
+    const response = await User.findOne({ _id: result._id, refreshToken: cookie.refreshToken })
+    return res.status(200).json({
+        success: response ? true : false,
+        newAccessToken: response ? generateAccsessToken(response._id, response.role) : 'Refresh token not matched'
+        // jwt.verify(cookie.refreshToken, process.env.JWT_SECRET, async (err, decode) => {
+        //     if (err) { throw new Error('Invalid refresh token') }
+        //     // check xem token có khớp với token đã lưu trong db hay không
+        //     const response = await User.findById({ _id: decode._id, refreshToken: cookie.refreshToken })
+        //     return res.status(200).json({
+        //         success: response ? true : false,
+        //         newAccessToken: response ? generateAccsessToken(response._id, response.role) : 'Refresh token not matched'
+        //     })
     })
 })
 
-module.exports = { register, login, getCurrent, refreshAccessToken }
+module.exports = { register, login, getCurrent, refreshAccessToken, logout }
