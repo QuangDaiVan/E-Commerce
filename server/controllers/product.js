@@ -25,12 +25,41 @@ const getProduct = asyncHandler(async (req, res) => {
 
 // Filtering, sorting, pagination
 const getProducts = asyncHandler(async (req, res) => {
-    const { pid } = req.params
-    const products = await Product.find(pid)
-    return res.status(200).json({
-        success: products ? true : false,
-        productsData: products ? products : 'Cannot get products'
-    })
+    const queries = { ...req.query }
+    // tách các trường đặc biệt ra khỏi query
+    const excludeFields = ['limit', 'sort', 'page', 'fields',]
+    excludeFields.forEach(element => delete queries[element])
+
+    // Format lại các operators cho đúng cú pháp với mongoose
+    const queryString = JSON.stringify(queries).replace(/\b(gte|gt|lt|lte)\b/g, matchedElement => `$${matchedElement}`)
+    // queryString.replace(/\b(gte|gt|lt|lte)\b/g, matchedElement => `$${matchedElement}`)
+    const formatedQueries = JSON.parse(queryString)
+
+    // Filtering: https://blog.jeffdevslife.com/p/1-mongodb-query-of-advanced-filtering-sorting-limit-field-and-pagination-with-mongoose/
+    if (queries?.title) {
+        formatedQueries.title = { $regex: queries.title, $options: 'i' }
+    }
+    let queryCommand = Product.find(formatedQueries)
+    // Execute query
+    // số lượng sản phẩm thỏa mãn điều kiện khác với số lượng sản phẩm trả về 1 lần gọi API
+    // queryCommand.exec(async (err, response) => {
+    //     if (err) { throw new Error(err.message) }
+    //     const counts = await Product.find(formatedQueries).countDocuments()
+    //     return res.status(200).json({
+    //         success: response ? true : false,
+    //         products: response ? response : 'Cannot get products',
+    //         counts: counts
+    //     })
+    // })
+    queryCommand.exec()
+        .then(async (err, response) => {
+            const counts = await Product.find(formatedQueries).countDocuments()
+            return res.status(200).json({
+                success: response ? true : false,
+                products: response ? response : 'Cannot find products',
+                counsts: counts
+            })
+        })
 })
 const updateProduct = asyncHandler(async (req, res) => {
     const { pid } = req.params
