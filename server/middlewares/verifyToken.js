@@ -25,4 +25,14 @@ const verifyAccessToken = asyncHanler(async (req, res, next) => {
     }
 })
 
-module.exports = { verifyAccessToken }
+const isAdmin = asyncHanler((req, res, next) => {
+    const { role } = req.user
+    if (role !== 'admin')
+        return res.status(401).json({
+            success: false,
+            message: 'REQUIRE ADMIN ROLE'
+        })
+    next()
+})
+
+module.exports = { verifyAccessToken, isAdmin }
