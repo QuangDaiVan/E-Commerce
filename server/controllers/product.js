@@ -1,3 +1,4 @@
+const { query } = require('express')
 const Product = require('../models/product')
 const asyncHandler = require('express-async-handler')
 const slugify = require('slugify')
@@ -52,7 +53,12 @@ const getProducts = asyncHandler(async (req, res) => {
         const fields = req.query.fields.split(',').join(' ')
         queryCommand = queryCommand.select(fields)
     }
-    // Pagination:
+    // Pagination: chỉ định số lượng phần tử của 1 page(1 lần gọi API)
+    const page = +req.query.page || 1
+    const limit = +req.query.limit || process.env.LIMIT_PRODUCTS_PER_PAGE
+    const skip = (page - 1) * limit
+    queryCommand.skip(skip).limit(limit)
+
 
     // Execute query
     // số lượng sản phẩm thỏa mãn điều kiện khác với số lượng sản phẩm trả về 1 lần gọi API
