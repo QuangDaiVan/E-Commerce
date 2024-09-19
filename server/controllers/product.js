@@ -40,8 +40,18 @@ const getProducts = asyncHandler(async (req, res) => {
         formatedQueries.title = { $regex: queries.title, $options: 'i' }
     }
     let queryCommand = Product.find(formatedQueries)
+
+    // Sorting
+    if (req.query.sort) {
+        const sortBy = req.query.sort.split(',').join(' ')
+        queryCommand.sort(sortBy)
+    }
+    // Fields limiting
+    // Pagination
+
     // Execute query
     // số lượng sản phẩm thỏa mãn điều kiện khác với số lượng sản phẩm trả về 1 lần gọi API
+    // hiện không hỗ trợ callback nên dùng promise như bên dưới
     // queryCommand.exec(async (err, response) => {
     //     if (err) { throw new Error(err.message) }
     //     const counts = await Product.find(formatedQueries).countDocuments()
@@ -52,14 +62,24 @@ const getProducts = asyncHandler(async (req, res) => {
     //     })
     // })
     queryCommand.exec()
-        .then(async (err, response) => {
+        .then(async (response) => {
             const counts = await Product.find(formatedQueries).countDocuments()
             return res.status(200).json({
-                success: response ? true : false,
-                products: response ? response : 'Cannot find products',
+                success: response.length ? true : false,
+                products: response.length ? response : 'Cannot find products',
                 counsts: counts
             })
         })
+    // .then()
+    // .then(async (response, err) => {
+    //     const counts = await Product.find(formatedQueries).countDocuments()
+    //     return res.status(200).json({
+    //         success: response ? true : false,
+    //         products: response ? response : 'Cannot find products',
+    //         counsts: counts
+    //     })
+    // })
+    // .catch(err => err)
 })
 const updateProduct = asyncHandler(async (req, res) => {
     const { pid } = req.params
