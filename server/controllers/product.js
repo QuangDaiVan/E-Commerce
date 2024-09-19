@@ -36,18 +36,23 @@ const getProducts = asyncHandler(async (req, res) => {
     const formatedQueries = JSON.parse(queryString)
 
     // Filtering: https://blog.jeffdevslife.com/p/1-mongodb-query-of-advanced-filtering-sorting-limit-field-and-pagination-with-mongoose/
+    // lọc ra theo yêu cầu của client
     if (queries?.title) {
         formatedQueries.title = { $regex: queries.title, $options: 'i' }
     }
     let queryCommand = Product.find(formatedQueries)
 
-    // Sorting
+    // Sorting: sắp xếp theo 1 yêu cầu của client
     if (req.query.sort) {
         const sortBy = req.query.sort.split(',').join(' ')
         queryCommand.sort(sortBy)
     }
-    // Fields limiting
-    // Pagination
+    // Fields limiting:
+    if (req.query.fields) {
+        const fields = req.query.fields.split(',').join(' ')
+        queryCommand = queryCommand.select(fields)
+    }
+    // Pagination:
 
     // Execute query
     // số lượng sản phẩm thỏa mãn điều kiện khác với số lượng sản phẩm trả về 1 lần gọi API
