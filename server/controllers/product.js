@@ -78,7 +78,7 @@ const getProducts = asyncHandler(async (req, res) => {
             return res.status(200).json({
                 success: response.length ? true : false,
                 products: response.length ? response : 'Cannot find products',
-                counsts: counts
+                counts: counts //fix counsts into counts to avoid naming mistakes when using counts in other files
             })
         })
     // .then()
