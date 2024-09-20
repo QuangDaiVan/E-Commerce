@@ -30,7 +30,6 @@ const getProduct = asyncHandler(async (req, res) => {
 const getProducts = asyncHandler(async (req, res) => {
 
     const queries = { ...req.query }
-    console.log('🚀 ~ getProducts ~ queries:', queries)
 
     // tách các trường đặc biệt ra khỏi query
     const excludeFields = ['limit', 'sort', 'page', 'fields',]
@@ -40,7 +39,6 @@ const getProducts = asyncHandler(async (req, res) => {
     const queryString = JSON.stringify(queries).replace(/\b(gte|gt|lt|lte)\b/g, matchedElement => `$${matchedElement}`)
     // queryString.replace(/\b(gte|gt|lt|lte)\b/g, matchedElement => `$${matchedElement}`)
     const formatedQueries = JSON.parse(queryString)
-    console.log('🚀 ~ getProducts ~ formatedQueries:', formatedQueries)
 
     // Filtering: https://blog.jeffdevslife.com/p/1-mongodb-query-of-advanced-filtering-sorting-limit-field-and-pagination-with-mongoose/
     // lọc ra theo yêu cầu của client
@@ -123,8 +121,17 @@ const ratings = asyncHandler(async (req, res) => {
             $push: { ratings: { star, comment, postedBy: _id } }
         }, { new: true })
     }
+
+    // total ratings
+    const updatedProduct = await Product.findById(pid)
+    const ratingCount = updatedProduct.ratings.length
+    const totalRating = updatedProduct.ratings.reduce((total, element) => { return total + +element.star }, 0)
+    updatedProduct.totalRatings = Math.round(totalRating * 10 / ratingCount) / 10
+    await updatedProduct.save()
+
     return res.status(200).json({
-        status: true
+        status: true,
+        updatedProduct: updatedProduct
     })
 })
 
