@@ -1,4 +1,3 @@
-const { query } = require('express')
 const Product = require('../models/product')
 const asyncHandler = require('express-async-handler')
 const slugify = require('slugify')
@@ -74,7 +73,7 @@ const getProducts = asyncHandler(async (req, res) => {
             return res.status(200).json({
                 success: response.length ? true : false,
                 products: response.length ? response : 'Cannot find products',
-                counsts: counts
+                counts: counts
             })
         })
 })
