@@ -10,6 +10,7 @@ const createBlog = asyncHandler(async (req, res) => {
         createdBlog: response ? response : 'Cannot create new blog'
     })
 })
+
 const getBlogs = asyncHandler(async (req, res) => {
     const response = await Blog.find().select('title description category')
     return res.status(200).json({
@@ -17,6 +18,7 @@ const getBlogs = asyncHandler(async (req, res) => {
         blogs: response ? response : 'Cannot get blogs'
     })
 })
+
 const updateBlog = asyncHandler(async (req, res) => {
     const { bid } = req.params
     if (Object.keys(req.body).length === 0) { throw new Error('Missing inputs') }
@@ -106,4 +108,15 @@ const dislikeBlog = asyncHandler(async (req, res) => {
     }
 })
 
-module.exports = { createBlog, getBlogs, updateBlog, deleteBlog, likeBlog, dislikeBlog }
+const getBlogDetail = asyncHandler(async (req, res) => {
+    const { bid } = req.params
+    const blog = await Blog.findByIdAndUpdate(bid, { $inc: { numberViews: 1 } }, { new: true })
+        .populate('likes', 'firstName lastName')
+        .populate('dislikes', 'firstName lastName')
+    return res.status(200).json({
+        success: blog ? true : false,
+        result: blog
+    })
+})
+
+module.exports = { createBlog, getBlogs, updateBlog, deleteBlog, likeBlog, dislikeBlog, getBlogDetail }
