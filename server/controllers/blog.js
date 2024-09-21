@@ -55,7 +55,7 @@ const likeBlog = asyncHandler(async (req, res) => {
     const alreadyDisliked = blog?.dislikes?.find(element => element.toString() === _id)
 
     if (alreadyDisliked) {
-        const response = await Blog.findByIdAndUpdate(bid, { $pull: { dislikes: _id } }, { new: true })
+        const response = await Blog.findByIdAndUpdate(bid, { $pull: { dislikes: _id }, $push: { likes: _id } }, { new: true })
         return res.status(200).json({
             success: response ? true : false,
             result: response
@@ -86,7 +86,7 @@ const dislikeBlog = asyncHandler(async (req, res) => {
     const alreadyLiked = blog?.likes?.find(element => element.toString() === _id)
 
     if (alreadyLiked) {
-        const response = await Blog.findByIdAndUpdate(bid, { $pull: { likes: _id } }, { new: true })
+        const response = await Blog.findByIdAndUpdate(bid, { $pull: { likes: _id }, $push: { dislikes: _id } }, { new: true })
         return res.status(200).json({
             success: response ? true : false,
             result: response
