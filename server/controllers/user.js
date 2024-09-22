@@ -20,7 +20,7 @@ const register = asyncHandler(async (req, res) => {
         const newUser = await User.create(req.body)
         return res.status(200).json({
             success: newUser ? true : false,
-            message: newUser ? 'Register is successfully. Please go login!' : 'Something went wrong!'
+            result: newUser ? 'Register is successfully. Please go login!' : 'Something went wrong!'
         })
     }
 })
@@ -52,12 +52,13 @@ const login = asyncHandler(async (req, res) => {
         return res.status(200).json(({
             success: true,
             accessToken: accessToken,
-            userData: userData
+            result: userData
         }))
     } else {
         throw new Error('Invalid credentials!')
     }
 })
+
 const logout = asyncHandler(async (req, res) => {
     // check xem trong cookie có refresh token hay không
     const cookie = req.cookies
@@ -70,7 +71,7 @@ const logout = asyncHandler(async (req, res) => {
     res.clearCookie('refreshToken', { httpOnly: true, secure: true })
     return res.status(200).json({
         success: true,
-        message: 'Logout is done'
+        result: 'Logout is done'
     })
 })
 
@@ -130,7 +131,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     const result = await sendMail(data)
     return res.status(200).json({
         success: true,
-        result
+        result: result
     })
 })
 
@@ -147,7 +148,7 @@ const resetPassword = asyncHandler(async (req, res) => {
     await user.save()
     return res.status(200).json({
         success: user ? true : false,
-        message: user ? 'Updated password!' : 'Something went wrong!'
+        result: user ? 'Updated password!' : 'Something went wrong!'
     })
 })
 
@@ -155,7 +156,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
     const response = await User.find().select('-refreshToken -password -role')
     return res.status(200).json({
         success: response ? true : false,
-        allUsers: response
+        result: response
     })
 })
 
@@ -165,7 +166,7 @@ const deleteUser = asyncHandler(async (req, res) => {
     const response = await User.findByIdAndDelete(_id)
     return res.status(200).json({
         success: response ? true : false,
-        deleteUser: response ? `User with email ${response.email} deleted` : 'No user deleted'
+        result: response ? `User with email ${response.email} deleted` : 'No user deleted'
     })
 })
 
@@ -175,7 +176,7 @@ const updateUser = asyncHandler(async (req, res) => {
     const response = await User.findByIdAndUpdate(_id, req.body, { new: true }).select('-refreshToken -password -role')
     return res.status(200).json({
         success: response ? true : false,
-        updateUser: response ? response : 'Something went wrong'
+        result: response ? response : 'Something went wrong'
     })
 })
 
@@ -185,7 +186,7 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
     const response = await User.findByIdAndUpdate(uid, req.body, { new: true }).select('-refreshToken -password -role')
     return res.status(200).json({
         success: response ? true : false,
-        updateUser: response ? response : 'Something went wrong'
+        result: response ? response : 'Something went wrong'
     })
 })
 
