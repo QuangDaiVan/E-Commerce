@@ -13,5 +13,7 @@ router.put('/resetpassword', userController.resetPassword)
 router.delete('/deleteuser', [verifyAccessToken, isAdmin], userController.deleteUser)
 router.put('/updateuser', [verifyAccessToken], userController.updateUser)
 router.put('/:uid', [verifyAccessToken, isAdmin], userController.updateUserByAdmin)
+router.put('/address', [verifyAccessToken], userController.addAddress)
+router.put('/cart/addProduct', [verifyAccessToken], userController.addProductIntoCart)
 
 module.exports = router
