@@ -39,6 +39,8 @@ const login = asyncHandler(async (req, res) => {
     // access token có chức năng xác thực người dùng và phân quyền người dùng
     // vì vậy cần check access token
     if (response && await response.isCorrectPassword(password)) {
+
+
         // tách password và role ra khỏi response
         const { password, role, refreshToken, ...userData } = response.toObject()
         // tạo access Token
@@ -122,7 +124,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
     // gửi mail
     const html = `Xin vui lòng click vào link dưới đây để thay đổi mật khẩu của bạn. Link này sẽ hết hạn sau 15 phút kể từ bây giờ. 
-    <a href=${process.env.URL_SERVER}/api/user/reset-password/${resetToken}>Click here</a>`
+    <a href=${process.env.URL_SERVER}/api/user/resetpassword/${resetToken}>Click here</a>`
 
     const data = {
         email,
